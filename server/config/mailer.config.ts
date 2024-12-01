@@ -24,7 +24,7 @@ export const sendEmail = async (
   buttonLink: string
 ) => {
   // Load the HTML email template
-  const templatePath = path.join(__dirname, "../public/templates/emailTemplate.html");
+  const templatePath = path.join(__dirname, "../public/emailTemplate.html");
   let template = fs.readFileSync(templatePath, "utf-8");
 
   // Replace placeholders with actual values

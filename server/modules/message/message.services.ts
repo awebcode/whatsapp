@@ -1,7 +1,11 @@
 // services/messageService.ts
 
 import prisma from "../../libs/prisma";
-import type { CreateMessageDto, GetMessagesDto, MarkMessageAsSeenDto } from "./message.dtos";
+import type {
+  CreateMessageDto,
+  GetMessagesDto,
+  MarkMessageAsSeenDto,
+} from "./message.dtos";
 
 const createMessage = async ({ content, senderId, chatId }: CreateMessageDto) => {
   return await prisma.message.create({
@@ -22,11 +26,11 @@ const getMessages = async ({ chatId }: GetMessagesDto) => {
 };
 
 const markMessageAsSeen = async (data: MarkMessageAsSeenDto) => {
-  const { messageId, userId } = data;
+  const { messageId, id } = data;
   return await prisma.messageSeen.create({
     data: {
       messageId,
-      userId,
+      id,
     },
   });
 };

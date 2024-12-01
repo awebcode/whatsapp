@@ -19,9 +19,10 @@ model User {
   lastSeenAt        DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
   createdAt         DateTime      @default(now())
-   resetToken       String?       @unique
-  resetTokenExpiry DateTime?
-  providerId       String?   @default("credential")
+  verified          Boolean       @default(false)
+  resetToken        String?       @unique
+  resetTokenExpiry  DateTime?
+  providerId        String?       @default("credential")
   memberships       ChatMember[]
   messages          Message[]
   chatsAdministered Chat[]

@@ -2,10 +2,11 @@ import { z, ZodSchema } from "zod";
 import type { Request, Response, NextFunction } from "express";
 import { AppError } from "./errors-handle.middleware";
 
-export  function validateZodMiddleware(schema: ZodSchema) {
+export   function  validateZodMiddleware(schema: ZodSchema) {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
-      schema.parse(req.body); // Validate the request body
+      const data=  schema.parse(req.body); // Validate the request body
+      req.body=data
       next(); // Proceed if validation passes
     } catch (error) {
       if (error instanceof z.ZodError) {

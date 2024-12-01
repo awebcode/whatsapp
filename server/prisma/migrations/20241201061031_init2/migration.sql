@@ -38,7 +38,7 @@ CREATE TABLE "Chat" (
 -- CreateTable
 CREATE TABLE "ChatMember" (
     "id" UUID NOT NULL,
-    "userId" UUID NOT NULL,
+    "id" UUID NOT NULL,
     "chatId" UUID NOT NULL,
     "joinedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -61,7 +61,7 @@ CREATE TABLE "Message" (
 CREATE TABLE "MessageSeen" (
     "id" UUID NOT NULL,
     "messageId" UUID NOT NULL,
-    "userId" UUID NOT NULL,
+    "id" UUID NOT NULL,
     "seenAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "MessageSeen_pkey" PRIMARY KEY ("id")
@@ -71,16 +71,16 @@ CREATE TABLE "MessageSeen" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ChatMember_userId_chatId_key" ON "ChatMember"("userId", "chatId");
+CREATE UNIQUE INDEX "ChatMember_id_chatId_key" ON "ChatMember"("id", "chatId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "MessageSeen_messageId_userId_key" ON "MessageSeen"("messageId", "userId");
+CREATE UNIQUE INDEX "MessageSeen_messageId_id_key" ON "MessageSeen"("messageId", "id");
 
 -- AddForeignKey
 ALTER TABLE "Chat" ADD CONSTRAINT "Chat_adminId_fkey" FOREIGN KEY ("adminId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ChatMember" ADD CONSTRAINT "ChatMember_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "ChatMember" ADD CONSTRAINT "ChatMember_id_fkey" FOREIGN KEY ("id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ChatMember" ADD CONSTRAINT "ChatMember_chatId_fkey" FOREIGN KEY ("chatId") REFERENCES "Chat"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -95,4 +95,4 @@ ALTER TABLE "Message" ADD CONSTRAINT "Message_chatId_fkey" FOREIGN KEY ("chatId"
 ALTER TABLE "MessageSeen" ADD CONSTRAINT "MessageSeen_messageId_fkey" FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "MessageSeen" ADD CONSTRAINT "MessageSeen_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "MessageSeen" ADD CONSTRAINT "MessageSeen_id_fkey" FOREIGN KEY ("id") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;

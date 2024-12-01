@@ -15,7 +15,7 @@ export const GetMessagesSchema = z.object({
 // Schema for marking a message as seen
 export const MarkMessageAsSeenSchema = z.object({
   messageId: z.string().uuid("Invalid message ID format"),
-  userId: z.string().uuid("Invalid user ID format"),
+  id: z.string().uuid("Invalid user ID format"),
 });
 
 // Type definitions (optional but helpful for type inference)

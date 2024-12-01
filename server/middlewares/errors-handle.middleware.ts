@@ -1,5 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { loggerInstance } from "../config/logger.config";
+import { z, ZodError } from "zod";
+import { formatErrorMessage, getStatusCode } from "../libs/utils";
 export class AppError extends Error {
   public statusCode: number;
   public isOperational: boolean;
@@ -12,20 +14,28 @@ export class AppError extends Error {
   }
 }
 
+export const errorHandler = (
+  err: AppError | ZodError | string, // Accepting string errors as well
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  // Format the error message
+  const message = formatErrorMessage(err);
 
-export const errorHandler = (err: AppError, req: Request, res: Response, next: NextFunction) => {
-  
-  const statusCode = err.statusCode || 500;
-  const message = err.isOperational ? err.message : "Internal Server Error";
- 
-  loggerInstance.error(err.message || err);
+  // Get the appropriate status code
+  const statusCode = getStatusCode(err);
+
+  // Log the error for debugging purposes
+  loggerInstance.error(message);
+
+  // Send the error response
   res.status(statusCode).json({
     status: "error",
     statusCode,
     message,
   });
 };
-
 // 404
 export const NotFoundExceptionMiddleware = (
   req: Request,

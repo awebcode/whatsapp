@@ -14,6 +14,7 @@ export const RegisterSchema = UserBaseSchema.pick({
   email: true,
   username: true,
   password: true,
+  avatar: true,
 });
 
 export const LoginSchema = UserBaseSchema.pick({
@@ -26,10 +27,19 @@ export const UpdateUserSchema = UserBaseSchema.partial({
   username: true,
   avatar: true,
   role: true,
+  password:true
 });
 
+export const forgetPasswordSchema = z.object({
+  email: z.string().email("Invalid email format"),
+})
+
+export const resetPasswordSchema = z.object({
+  newPassword: z.string().min(6, "Password must be at least 6 characters long"),
+});
 
 export type RegisterDTO = z.infer<typeof RegisterSchema>;
 export type LoginDTO = z.infer<typeof LoginSchema>;
 export type UpdateUserDTO = z.infer<typeof UpdateUserSchema>;
-
+export type ForgetPasswordDTO = z.infer<typeof forgetPasswordSchema>;
+export type ResetPasswordDTO = z.infer<typeof resetPasswordSchema>;

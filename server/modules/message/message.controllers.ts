@@ -1,15 +1,12 @@
 // controllers/messageController.ts
 import type { NextFunction, Request, Response } from "express";
 import * as messageService from "./message.services";
-import { validateZodMiddleware } from "../../middlewares/validate-zod.middleware";
-import { CreateMessageSchema, type CreateMessageDto } from "./message.dtos";
-import type { TypedRequestBody } from "../../types/index.types";
+import { CreateMessageSchema} from "./message.dtos";
 
-const sendMessage = [
-  validateZodMiddleware(CreateMessageSchema),
-  async (req: TypedRequestBody<CreateMessageDto>, res: Response, next: NextFunction) => {
+const sendMessage = 
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { content, chatId } = req.body;
+      const { content, chatId } = CreateMessageSchema.parse(req.body);
       const message = await messageService.createMessage({
         content,
         senderId: req.user.id,
@@ -19,8 +16,7 @@ const sendMessage = [
     } catch (err) {
       next(err);
     }
-  },
-];
+  }
 
 const getMessages = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -35,7 +31,7 @@ const getMessages = async (req: Request, res: Response, next: NextFunction) => {
 const markMessageAsSeen = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { messageId } = req.params;
-    await messageService.markMessageAsSeen({ messageId, userId: req.user.id });
+    await messageService.markMessageAsSeen({ messageId, id: req.user.id });
     res.status(200).json({ message: "Message marked as seen" });
   } catch (err) {
     next(err);

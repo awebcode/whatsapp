@@ -2,7 +2,6 @@
 
 import prisma from "../../libs/prisma";
 
-
 interface CreateChat {
   name: string;
   adminId: string;
@@ -17,18 +16,18 @@ const createChat = async ({ name, adminId }: CreateChat) => {
   });
 };
 
-const addUserToChat = async (userId: string, chatId: string) => {
+const addUserToChat = async (id: string, chatId: string) => {
   return await prisma.chatMember.create({
     data: {
-      userId,
+      id,
       chatId,
     },
   });
 };
 
-const getChats = async (userId: string) => {
+const getChats = async (id: string) => {
   return await prisma.chatMember.findMany({
-    where: { userId },
+    where: { id },
     include: { chat: true },
   });
 };

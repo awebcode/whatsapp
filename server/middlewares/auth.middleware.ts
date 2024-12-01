@@ -17,7 +17,6 @@ export const authMiddleware = async (
 
     // Check if token exists in cache
     if (accessToken && tokenCache.has(accessToken)) {
-      loggerInstance.info({ message: "Found token in cache", status: 200 });
       req.user = tokenCache.get(accessToken) as any;
       return next();
     }
@@ -33,7 +32,7 @@ export const authMiddleware = async (
     // Handle expired or invalid access token
     const refreshToken = extractTokenFromCookies(req, "refresh_token");
     if (!refreshToken) {
-      throw new AppError("Invalid refresh token", 401);
+      throw new AppError("Please login to continue!", 401);
     }
 
     const refreshTokenPayload = jwt.verify(
@@ -42,22 +41,19 @@ export const authMiddleware = async (
     ) as JwtPayload;
 
     accessToken = jwt.sign(
-      { userId: refreshTokenPayload.userId, role: refreshTokenPayload.role },
+      { id: refreshTokenPayload.id, role: refreshTokenPayload.role },
       envConfig.jwtSecret,
       { expiresIn: "1h" }
     );
 
     res.cookie("access_token", accessToken, getCookieOptions(60 * 60)); // 1 hour expiration
     tokenCache.set(accessToken, {
-      userId: refreshTokenPayload.userId,
-      role: refreshTokenPayload.role,
+      id: refreshTokenPayload.id,
     });
-    req.user = refreshTokenPayload as any;
-    return next();
+    req.user.id = refreshTokenPayload.id;
+    next();
   } catch (error) {
-    loggerInstance.error({ message: "Error during authentication", error, status: 401 });
-    // Handle error
-    throw new AppError("Invalid token or error during authentication", 401);
+    next(error);
   }
 };
 
