@@ -1,0 +1,93 @@
+// schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String        @id @default(uuid()) @db.Uuid
+  username          String
+  email             String        @unique
+  password          String
+  avatar            String        @default("")
+  role              Role          @default(USER)
+  status            Status        @default(OFFLINE)
+  lastSeenAt        DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime      @default(now())
+   resetToken       String?       @unique
+  resetTokenExpiry DateTime?
+  providerId       String?   @default("credential")
+  memberships       ChatMember[]
+  messages          Message[]
+  chatsAdministered Chat[]
+  seenMessages      MessageSeen[]
+}
+
+model Chat {
+  id          String       @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  adminId     String       @db.Uuid
+  admin       User         @relation(fields: [adminId], references: [id], onDelete: Cascade)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  members     ChatMember[]
+  messages    Message[]
+}
+
+model ChatMember {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @db.Uuid
+  chatId   String   @db.Uuid
+  joinedAt DateTime @default(now())
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chat     Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, chatId]) // Ensures a user can't join the same chat twice
+}
+
+model Message {
+  id       String        @id @default(uuid()) @db.Uuid
+  content  String
+  senderId String        @db.Uuid
+  chatId   String        @db.Uuid
+  sentAt   DateTime      @default(now())
+  status   MessageStatus @default(SENT)
+  sender   User          @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  chat     Chat          @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  seenBy   MessageSeen[]
+}
+
+model MessageSeen {
+  id        String   @id @default(uuid()) @db.Uuid
+  messageId String   @db.Uuid
+  userId    String   @db.Uuid
+  seenAt    DateTime @default(now())
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([messageId, userId]) // Ensures a user can't mark the same message as seen more than once
+}
+
+enum Role {
+  GUEST
+  USER
+  ADMIN
+}
+
+enum Status {
+  ONLINE
+  OFFLINE
+  IDLE
+}
+
+enum MessageStatus {
+  SENT // Message has been sent
+  DELIVERED // Message has been delivered to the recipient(s)
+  READ // Message has been read by the recipient(s)
+}
