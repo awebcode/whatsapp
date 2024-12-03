@@ -35,7 +35,7 @@ export const sendEmail = async (
   template = template.replace("{{buttonText}}", "Get Started");
 
   // Set up email data
-  const mailOptions = {
+  const mailOptions: nodemailer.SendMailOptions = {
     from: `"${envConfig.fromName}" <${envConfig.fromEmail}>`, // sender address
     to, // recipient
     subject, // Subject line

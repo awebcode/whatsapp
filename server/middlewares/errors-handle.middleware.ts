@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 import { loggerInstance } from "../config/logger.config";
 import { z, ZodError } from "zod";
-import { formatErrorMessage, getStatusCode } from "../libs/utils";
+import { extractErrorLine, formatErrorMessage, getStatusCode } from "../libs/utils";
 export class AppError extends Error {
   public statusCode: number;
   public isOperational: boolean;
@@ -27,13 +27,22 @@ export const errorHandler = (
   const statusCode = getStatusCode(err);
 
   // Log the error for debugging purposes
-  loggerInstance.error(message);
+  // Extract error path details
+  const errorPath = `${req.method} ${req.originalUrl}`;
+  const errorStack = err instanceof Error ? err.stack : undefined;
+  const errorLine = errorStack ? extractErrorLine(errorStack) : "N/A";
+  // Log the error along with the path
+  loggerInstance.error(`Error at ${errorPath} at ${errorLine}: ${message}`, {
+    statusCode,
+  });
 
   // Send the error response
   res.status(statusCode).json({
+    success: false,
     status: "error",
     statusCode,
     message,
+    errorLine,
   });
 };
 // 404
@@ -42,6 +51,5 @@ export const NotFoundExceptionMiddleware = (
   _: Response,
   next: NextFunction
 ) => {
-  const error = new AppError(`Cannot find ${req.originalUrl} on this server`, 404);
-  next(error);
+  next(new AppError(`Cannot find ${req.originalUrl} on this server`, 404));
 };

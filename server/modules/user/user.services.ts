@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import prisma from "../../libs/prisma";
 import { AppError } from "../../middlewares/errors-handle.middleware";
 import type { Request, Response } from "express";
-import type { User } from "@prisma/client";
+import type { Role, User } from "@prisma/client";
 import { envConfig } from "../../config/env.config";
 import { getCookieOptions } from "../../config/cookie.config";
 import { sendEmail } from "../../config/mailer.config";
@@ -20,10 +20,15 @@ const generateHash = async (password: string) => {
   return await bcrypt.hash(password, 12);
 };
 
-// Generate JWT token
+/** Generate JWT token
+ * @param {object} payload - Payload for the token
+ * @param {string} expiresIn - Expiration time for the token
+ * @param {string} type - Type of token (access or refresh)
+ * @returns {string} - JWT token
+ */
 const generateToken = async (
-  payload: { id: string },
-  expiresIn: string = "1h",
+  payload: { id: string; role: Role },
+  expiresIn: string,
   type: "access" | "refresh"
 ) => {
   const secret = type === "access" ? envConfig.jwtSecret : envConfig.refreshTokenSecret;
@@ -59,7 +64,11 @@ const userResponse = (user: User) => ({
   createdAt: user.createdAt,
 });
 
-// Set cookies on the client
+/**  Set cookies on the client
+  - access_token: 1 hour
+  - refresh_token: 7 days
+  @param {Response} res, accessToken, refreshToken
+*/
 const setCookies = (res: Response, accessToken: string, refreshToken: string) => {
   res.cookie("access_token", accessToken, getCookieOptions(60 * 60)); // 1 hour
   res.cookie("refresh_token", refreshToken, getCookieOptions(60 * 60 * 24 * 7)); // 7 days
@@ -94,8 +103,16 @@ const loginUser = async ({ email, password }: LoginDTO) => {
     throw new AppError("Invalid credentials", 401);
   }
 
-  const accessToken = await generateToken({ id: user.id }, "1h", "access");
-  const refreshToken = await generateToken({ id: user.id }, "7d", "refresh");
+  const accessToken = await generateToken(
+    { id: user.id, role: user.role },
+    "1h",
+    "access"
+  );
+  const refreshToken = await generateToken(
+    { id: user.id, role: user.role },
+    "7d",
+    "refresh"
+  );
   return { user: userResponse(user), ...formatTokens(accessToken, refreshToken) };
 };
 
@@ -188,7 +205,14 @@ const resetPassword = async (token: string, newPassword: string) => {
     data: { password: hashedPassword, resetToken: null, resetTokenExpiry: null },
   });
 };
+/**Admin Services */
 
+const getUsers = async () => {
+  return await prisma.user.findMany();
+}
+const deleteUsers = async () => {
+  return await prisma.user.deleteMany();
+}
 // Exporting all services
 export {
   createUser,
@@ -205,4 +229,6 @@ export {
   resetPassword,
   getUserById,
   generateHash,
+  getUsers,
+  deleteUsers
 };

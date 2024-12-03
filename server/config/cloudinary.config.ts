@@ -5,6 +5,7 @@ import { AppError } from "../middlewares/errors-handle.middleware";
 import type { Request } from "express";
 import fs from "fs";
 import path from "path";
+
 // Ensure you set your environment variables or hard-code them (not recommended for production)
 cloudinary.config({
   cloud_name: envConfig.cloudinaryCloudName,

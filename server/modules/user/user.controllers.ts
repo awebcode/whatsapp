@@ -5,10 +5,7 @@ import {
   LoginSchema,
   RegisterSchema,
   resetPasswordSchema,
-  UpdateUserSchema,
 } from "./user.dtos";
-import { validateZodMiddleware } from "../../middlewares/validate-zod.middleware";
-import type { TypedRequestBody } from "../../types/index.types";
 import { uploadSingleFile } from "../../config/cloudinary.config";
 import { sendEmail } from "../../config/mailer.config";
 import { envConfig } from "../../config/env.config";
@@ -100,6 +97,7 @@ const deleteUser = async (req: Request, res: Response, next: NextFunction) => {
     next(err);
   }
 };
+
 //** Forgot password */
 const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -123,6 +121,26 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
   }
 };
 
+
+/**Admin Controllers */
+const getUsers= async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const users = await userService.getUsers();
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+}
+
+const deleteUsers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const users = await userService.deleteUsers();
+    res.status(200).json(users);
+  } catch (err) {
+    next(err);
+  }
+}
+
 export {
   register,
   login,
@@ -132,4 +150,7 @@ export {
   deleteUser,
   forgotPassword,
   resetPassword,
+  getUsers,
+  deleteUsers
+  
 };

@@ -10,7 +10,7 @@ import config from "../config/index.config";
  * Set up necessary middlewares
  * @param app Express app instance
  */
-const setupMiddleware = (app: express.Application) => {
+const setupMiddlewares = (app: express.Application) => {
   // Serving static files
   app.use(express.static("public"));
 
@@ -40,4 +40,4 @@ const setupMiddleware = (app: express.Application) => {
   app.use(config.rateLimit);
 };
 
-export { setupMiddleware };
+export { setupMiddlewares };

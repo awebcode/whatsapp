@@ -1,16 +1,10 @@
 import type { CookieOptions as ExpressCookieOptions } from "express";
 import { envConfig } from "./env.config";
 
-enum SAME_SITE {
-  LAX = "lax",
-  STRICT = "strict",
-  NONE = "none",
-}
-
 const baseCookieOptions: ExpressCookieOptions = {
   httpOnly: true,
   secure: envConfig.nodeEnv === "production",
-  sameSite: SAME_SITE.STRICT,
+  sameSite: "strict",
   path: "/",
 };
 

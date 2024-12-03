@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { Role } from "@prisma/client";
 
 //* ENV CONFIGURATION FOR GLOBAL SCOPE *//
 namespace NodeJS {
@@ -13,7 +13,10 @@ namespace NodeJS {
 declare global {
   namespace Express {
     interface Request {
-      user: User;
+      user: {
+        id: string;
+        role: Role;
+      };
     }
   }
 }

@@ -7,14 +7,18 @@ import {
 } from "./middlewares/errors-handle.middleware";
 import { envConfig } from "./config/env.config";
 import mainRoutes from "./modules/index.routes";
-import { setupMiddleware } from "./middlewares/setup-middlewares"; // Import the middleware setup
+import { setupMiddlewares } from "./middlewares/setup-middlewares"; // Import the middleware setup
 
 const app = express();
 const server = http.createServer(app);
 
-// Global necessary middlewares
-setupMiddleware(app);
 
+// Global necessary middlewares
+setupMiddlewares(app);
+app.post("/api/v1/submit", (req, res) => {
+  console.log(req.body);
+  res.status(200).json({ message: "Message submitted successfully", data: req.body });
+})
 // Routes
 app.use("/api/v1", mainRoutes);
 
