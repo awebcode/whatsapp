@@ -102,14 +102,14 @@ const loginUser = async ({ email, password }: LoginDTO) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     throw new AppError("Invalid credentials", 401);
   }
-
+  const tokenPayload = { id: user.id, role: user.role };
   const accessToken = await generateToken(
-    { id: user.id, role: user.role },
+    tokenPayload,
     "1h",
     "access"
   );
   const refreshToken = await generateToken(
-    { id: user.id, role: user.role },
+    tokenPayload,
     "7d",
     "refresh"
   );
@@ -209,10 +209,10 @@ const resetPassword = async (token: string, newPassword: string) => {
 
 const getUsers = async () => {
   return await prisma.user.findMany();
-}
+};
 const deleteUsers = async () => {
   return await prisma.user.deleteMany();
-}
+};
 // Exporting all services
 export {
   createUser,
@@ -230,5 +230,5 @@ export {
   getUserById,
   generateHash,
   getUsers,
-  deleteUsers
+  deleteUsers,
 };
